@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+"""
+Colours all dates yellow.
+
+If you need multiple filters take a look at multiFilter
+
+Colors the 'note:' tag green
+"""
+
+import sys
+import re
+
+from colorama import Fore, Style
+
+pattern = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+def main(args=None):
+    for line in sys.stdin:
+        print re.sub(pattern, Fore.YELLOW + '\\1' + Style.RESET_ALL, line.strip())
+    return True
+
+if __name__ == "__main__":
+    status = not main(sys.argv)
+    sys.exit(status)

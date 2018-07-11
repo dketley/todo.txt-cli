@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+"""
+Combine multiple filters based on the TODOTXT_FINAL_FILTER_LIST environment variable
+"""
+
+import os, sys
+import subprocess
+
+filters = []
+
+def main(args=None):
+    filter = os.environ.get('TODOTXT_FINAL_FILTER_LIST', 'cat')
+    p = subprocess.Popen(filter, shell=True, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
+    p.wait()
+
+if __name__ == "__main__":
+    status = not main(sys.argv)
+    sys.exit(status)
