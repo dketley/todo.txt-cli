@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+action=$1
+shift
+
+[ "$action" = "usage" ] && {
+  echo "  Append multiple:"
+  echo "    appendm #1,#2,#3,#4,#5,... \"THING I WANT TO APPEND\""
+  echo "        where #1,#2,... are a comma-separated list of task numbers"
+  echo "      append text to all the tasks in the list. Quotes optional"
+  echo ""
+  exit
+}
+
+# Get list of task numbers and text to add
+IFS=',' read -r -a tasks <<< "$1"
+shift
+text_to_add="$@"
+
+# Get list of tasks containing append text already. The final sed strips out
+# control characters
+list_to_skip=$($TODO_SH command list "$text_to_add" | cut -d" " -f1 | grep -oP "\d+" | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")
+
+contains_number() {
+    local e match="$1"
+    shift
+    for e; do [ "$e" -eq "$match" ] && return 0; done
+    return 1
+}
+
+# call back to the main script to append
+for task in ${tasks[@]} ; do
+    # Don't append if the task already contains the text
+    if ! contains_number $task ${list_to_skip[@]} ; then
+        "$TODO_SH" command append $task $text_to_add
+    else
+        echo "$task already contains $text_to_add"
+    fi
+done
